@@ -1,9 +1,12 @@
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using API.Data;
 using API.Dtos;
 using API.Entities;
+using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,14 +15,16 @@ namespace API.Controllers
     public class AccountController : BaseController
     {
         public StoreContext _context;
-        public AccountController(StoreContext context)
+        private ITokenService _tokenService;
+        public AccountController(StoreContext context, ITokenService tokenService)
         {
             _context = context;
+            _tokenService = tokenService;
         }
 
 
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if(await _context.Users.AnyAsync(x => x.UserName == registerDto.Username.ToLower())) return BadRequest("Username is already taken!");
 
@@ -35,13 +40,25 @@ namespace API.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return user;
+            return new UserDto
+            {
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user)
+            };
         }
-
+        
         [HttpPost("login")]
-        public async Task<ActionResult<User>> Login(LoginDto loginDto)
+        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == loginDto.Username);
+            // var user = await _context.Users
+            // .SingleOrDefaultAsync(x => x.UserName == loginDto.Username);
+
+            var user = await _context.Users
+                .Where(u => u.UserName == loginDto.Username)
+                .Include(x => x.Products)
+                .SingleOrDefaultAsync();
+            
+
 
             if(user == null) return Unauthorized("You have passed invalid username!");
 
@@ -54,7 +71,12 @@ namespace API.Controllers
                 if(computeHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid Password!");
             }
 
-            return user;
+
+            return new UserDto
+            {
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user)
+            };
         }
     }
 }

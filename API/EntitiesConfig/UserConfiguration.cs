@@ -10,6 +10,7 @@ namespace API.EntitiesConfig
         {
             builder.Property(p => p.Id).IsRequired();
             builder.Property(p => p.UserName).IsRequired().HasMaxLength(16);
+            
         }
     }
 }

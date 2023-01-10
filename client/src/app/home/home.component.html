@@ -1,0 +1,20 @@
+<div class="container mt-5">
+    <div *ngIf="!registerMode" style="text-align: center;">
+        <h1>Do you want to dispose your unnecessary stuff?</h1>
+        <p class="lead">Let's sell something! Sign up!</p>
+        <div class="text-center">
+            <button (click)="registerToggle()" class="btn btn-primary btn-lg me-2">Register</button>
+            <button class="btn btn-primary btn-lg">Learn more</button>
+        </div>
+    </div>
+
+    <div *ngIf="registerMode" class="container">
+        <div class="row justify-content-center">
+            <div class="col-4">
+                <p><app-register (cancelRegister)="cancelRegisterMode($event)"></app-register></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
