@@ -33,6 +33,14 @@ namespace API.Data
                     }
                 }
             }
+
+            //Entity config
+
+            modelBuilder.Entity<Product>()
+            .HasOne<User>(p => p.User)
+            .WithMany(u => u.Products)
+            .HasForeignKey(p => p.UserId);
+
         }
     }
 }
