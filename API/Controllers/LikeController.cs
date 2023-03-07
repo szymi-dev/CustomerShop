@@ -49,12 +49,12 @@ namespace API.Controllers
 
             if (product.UserId == user.Id)
             {
-                return BadRequest("Nie możesz polubić własnego produktu.");
+                return BadRequest("You can't like your own product!");
             }
 
             if (user.LikedProducts.Contains(product))
             {
-                return BadRequest("Ten produkt został już przez Ciebie polubiony.");
+                return BadRequest("You have already liked this product!");
             }
 
             user.LikedProducts.Add(product);

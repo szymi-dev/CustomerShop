@@ -16,6 +16,7 @@ namespace API.Data
         public DbSet<ProductBrand> ProductBrands { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +41,16 @@ namespace API.Data
             .HasOne<User>(p => p.User)
             .WithMany(u => u.Products)
             .HasForeignKey(p => p.UserId);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(x => x.Reciepient)
+                .WithMany(u => u.MessagesRecieved)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(x => x.Sender)
+                .WithMany(u => u.MessagesSent)
+                .OnDelete(DeleteBehavior.Restrict);           
 
         }
     }

@@ -10,5 +10,7 @@ namespace API.Entities
         public byte[] PasswordSalt { get; set; }
         public List<Product> Products { get; set; }
         public List<Product> LikedProducts { get; set; } = new List<Product>();
+        public List<Message> MessagesSent { get; set; }
+        public List<Message> MessagesRecieved { get; set; }
     }
 }
