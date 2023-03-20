@@ -29,48 +29,44 @@ namespace API.Controllers
             _context = context;
         }
 
-        
-        [HttpPost("add-to-favorites/{username}/{productId}")]
-        public async Task<ActionResult> AddToFavorites(string username, int productId)
+        [HttpPost("add-to-favorites/{productId}")]
+        public async Task<ActionResult> AddToFavorites(int productId)
         {
-            var product = await _context.Products.FindAsync(productId);
+            var product = await _productRepository.GetProductById(productId);
 
-            if (product == null)
+            if(product == null)
             {
                 return NotFound();
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
-            
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userRepository.GetUserByUsername(username);
 
+            if(user == null)
+            {
+                return NotFound();
+            }
+            
             if (product.UserId == user.Id)
             {
                 return BadRequest("You can't like your own product!");
             }
 
-            if (user.LikedProducts.Contains(product))
+            if(user.LikedProducts.Contains(product))
             {
                 return BadRequest("You have already liked this product!");
             }
 
             user.LikedProducts.Add(product);
             await _context.SaveChangesAsync();
-
             return Ok();
         }
 
-        [HttpGet("{username}")]
-        public async Task<ActionResult<List<ProductDto>>> GetUserFavorites(string username)
+        [HttpGet("get-favorites")]
+        public async Task<ActionResult<List<ProductDto>>> GetUserFavorites()
         {
-            var user = await _context.Users
-            .Where(u => u.UserName == username)
-            .Include(x => x.LikedProducts)
-            .ThenInclude(p => p.User)
-            .FirstOrDefaultAsync();
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userRepository.GetUserByUsername(username);
 
             var likedProducts = user.LikedProducts.Select(p => new ProductDto
                 {
@@ -83,14 +79,11 @@ namespace API.Controllers
             return likedProducts;
         }
         
-        [HttpDelete("{username}/{productId}")]
-        public async Task<ActionResult> DeleteFromFavorites(string username, int productId)
+        [HttpDelete("{productId}")]
+        public async Task<ActionResult> DeleteFromFavorites(int productId)
         {
-            var user = await _context.Users
-                .Where(u => u.UserName == username)
-                .Include(x => x.LikedProducts)
-                .ThenInclude(x => x.User)
-                .FirstOrDefaultAsync();
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userRepository.GetUserByUsername(username);
 
             var product = user.LikedProducts.FirstOrDefault(p => p.Id == productId);
 

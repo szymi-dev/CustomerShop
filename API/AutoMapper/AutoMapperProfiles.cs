@@ -9,6 +9,7 @@ namespace API.AutoMapper
         public AutoMapperProfiles()
         {
             CreateMap<Product, ProductDto>().ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User.UserName));
+            CreateMap<Message, MessageDto>();
         }
     }
 }

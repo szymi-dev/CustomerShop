@@ -30,10 +30,11 @@ namespace API
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IBasketRepository, BasketRepository>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
             services.AddControllers();
             services.AddAutoMapper(typeof(AutoMapperProfiles));
-            services.AddScoped<ITokenService, TokenService>();
             services.AddSingleton<IConnectionMultiplexer>(x => {
                 var options = ConfigurationOptions.Parse(_config.GetConnectionString("Redis"));
                 return ConnectionMultiplexer.Connect(options);

@@ -22,6 +22,14 @@ namespace API.Repositories
             return await _context.Users.FindAsync(id);
         }
 
+        public async Task<User> GetUserByUsername(string username)
+        {
+            return await _context.Users.Where(u => u.UserName == username)
+                .Include(x => x.LikedProducts)
+                .ThenInclude(x => x.User)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<User>> GetUsers()
         {
             return await _context.Users

@@ -9,6 +9,7 @@ namespace API.Interfaces
     public interface IUserRepository
     {
         Task<User> GetUser(int id);
+        Task<User> GetUserByUsername(string username);
         Task<List<User>> GetUsers();
     }
 }
